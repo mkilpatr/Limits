@@ -223,9 +223,7 @@ def fillSignificances(config, sigfile, name):
     limfilename = sigfile
     mstop_step = 1
     mlsp_step = 1
-    if "T2fbd" in limfilename: mlsp_step = 2
-    elif "T2cc" in limfilename: mlsp_step = 2
-    elif "T2bWC" in limfilename: mlsp_step = 2
+    if (("T2fbd" in limfilename) or ("T2cc" in limfilename) or ("T2bWC" in limfilename)): mlsp_step = 2
     for signal in config.signals:
         mstop = int(signal.split('_')[1])
         mlsp = int(signal.split('_')[2])
@@ -295,9 +293,7 @@ def fillAsymptoticLimits(config, limfilename, excfilename, interpolate):
     minmlsp = 0.0
     mstop_step = 10 if "T2cc" in limfilename else 1
     mlsp_step = 1
-    if "T2fbd" in limfilename: mlsp_step = 2
-    elif "T2cc" in limfilename: mlsp_step = 2
-    elif "T2bWC" in limfilename: mlsp_step = 2
+    if (("T2fbd" in limfilename) or ("T2cc" in limfilename) or ("T2bWC" in limfilename)): mlsp_step = 2
     elif "T2bW" in limfilename: 
         mlsp_step = 10
         mstop_step = 10
@@ -370,6 +366,7 @@ def fillAsymptoticLimits(config, limfilename, excfilename, interpolate):
             limits.append(tempLimit)
             mstop = int(signal.split('_')[1])
             mlsp = (int(signal.split('_')[1]) - int(signal.split('_')[2])) if (("T2fbd" in limfilename) or ("T2cc" in limfilename) or ("T2bWC" in limfilename)) else int(signal.split('_')[2])
+            mdiff = (int(signal.split('_')[1]) - int(signal.split('_')[2]))
             limit = output[1]
             binIdx = xsechist.FindBin(float(mstop))
             xsec = xsechist.GetBinContent(binIdx)
@@ -412,9 +409,9 @@ def fillAsymptoticLimits(config, limfilename, excfilename, interpolate):
                     hobsup.Fill(mstop, mlsp, limit['obs'] * xsec / xsecdown)
                     # print 'Can\'t fill obs +/- 1 sigma theory if you didn\'t
                     # scale the signals to acceptance!'
-                    print 'MStop: %d, MLSP: %d, XS: %4.2f, Exp Limit: %4.2f (+1 expt: %4.2f, -1 expt: %4.2f), Obs Limit: %4.2f (+1 theory: %4.2f, -1 theory: %4.2f), XS Limit: %4.2f exp, %4.2f obs' % (mstop, mlsp, xsec, limit['0'], limit['+1'], limit['-1'], limit['obs'], limit['obs'] * xsec / xsecdown, limit['obs'] * xsec / xsecup, xseclimit, xsecobslimit)
+                    print 'MStop: %d, MLSP: %d, MDiff: %d, XS: %4.2f, Exp Limit: %4.2f (+1 expt: %4.2f, -1 expt: %4.2f), Obs Limit: %4.2f (+1 theory: %4.2f, -1 theory: %4.2f), XS Limit: %4.2f exp, %4.2f obs' % (mstop, mlsp, mdiff, xsec, limit['0'], limit['+1'], limit['-1'], limit['obs'], limit['obs'] * xsec / xsecdown, limit['obs'] * xsec / xsecup, xseclimit, xsecobslimit)
                 else:
-                    print 'MStop: %d, MLSP: %d, XS: %4.2f, Limit: %4.2f (+1: %4.2f, -1: %4.2f), XS Limit: %4.2f' % (mstop, mlsp, xsec, limit['0'], limit['+1'], limit['-1'], xseclimit)
+                    print 'MStop: %d, MLSP: %d, MDiff: %d, XS: %4.2f, Limit: %4.2f (+1: %4.2f, -1: %4.2f), XS Limit: %4.2f' % (mstop, mlsp, mdiff, xsec, limit['0'], limit['+1'], limit['-1'], xseclimit)
             hxsecexp.Fill(mstop, mlsp, xseclimit)
             hxsecobs.Fill(mstop, mlsp, xsecobslimit)
 

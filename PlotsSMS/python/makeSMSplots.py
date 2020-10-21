@@ -16,15 +16,15 @@ if __name__ == '__main__':
 
     # read the config file
     fileIN = inputFile(filename) if not allPlots else inputFile_all(filename)    
-    signal = ['T2tt', 'T2bW', 'T2tb', 'T2fbd', 'T2bWC', 'T2cc']
+    signal = ['T2tt', 'T2bW', 'T2tb', 'T2bWC', 'T2fbd', 'T2cc']
 
     HISTOGRAM = {}
     OBSERVED = {}
     EXPECTED = {}
     if allPlots:
-        HISTOGRAM = {'T2tt': fileIN.HISTOGRAM_T2tt, 'T2bW': fileIN.HISTOGRAM_T2bW, 'T2tb': fileIN.HISTOGRAM_T2tb, 'T2fbd': fileIN.HISTOGRAM_T2fbd, 'T2bWC': fileIN.HISTOGRAM_T2bWC, 'T2cc': fileIN.HISTOGRAM_T2cc}
-        OBSERVED =  {'T2tt': fileIN.OBSERVED_T2tt,  'T2bW': fileIN.OBSERVED_T2bW,  'T2tb': fileIN.OBSERVED_T2tb,  'T2fbd': fileIN.OBSERVED_T2fbd,  'T2bWC': fileIN.OBSERVED_T2bWC,  'T2cc': fileIN.OBSERVED_T2cc}
-        EXPECTED =  {'T2tt': fileIN.EXPECTED_T2tt,  'T2bW': fileIN.EXPECTED_T2bW,  'T2tb': fileIN.EXPECTED_T2tb,  'T2fbd': fileIN.EXPECTED_T2fbd,  'T2bWC': fileIN.EXPECTED_T2bWC,  'T2cc': fileIN.EXPECTED_T2cc}
+        HISTOGRAM = {'T2tt': fileIN.HISTOGRAM_T2tt, 'T2bW': fileIN.HISTOGRAM_T2bW, 'T2tb': fileIN.HISTOGRAM_T2tb, 'T2bWC': fileIN.HISTOGRAM_T2bWC, 'T2fbd': fileIN.HISTOGRAM_T2fbd, 'T2cc': fileIN.HISTOGRAM_T2cc}
+        OBSERVED =  {'T2tt': fileIN.OBSERVED_T2tt,  'T2bW': fileIN.OBSERVED_T2bW,  'T2tb': fileIN.OBSERVED_T2tb,  'T2bWC': fileIN.OBSERVED_T2bWC,  'T2fbd': fileIN.OBSERVED_T2fbd,  'T2cc': fileIN.OBSERVED_T2cc}
+        EXPECTED =  {'T2tt': fileIN.EXPECTED_T2tt,  'T2bW': fileIN.EXPECTED_T2bW,  'T2tb': fileIN.EXPECTED_T2tb,  'T2bWC': fileIN.EXPECTED_T2bWC,  'T2fbd': fileIN.EXPECTED_T2fbd,  'T2cc': fileIN.EXPECTED_T2cc}
 
     # classic temperature histogra
     if not allPlots:

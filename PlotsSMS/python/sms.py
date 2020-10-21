@@ -26,7 +26,7 @@ class sms():
         # decay chain
         self.label = "pp #rightarrow #tilde{t} #bar{#tilde{t}}, #tilde{t} #rightarrow b #tilde{#chi}^{#pm}_{1}, #tilde{#chi}^{#pm}_{1} #rightarrow W^{#pm(*)} #tilde{#chi}_{1}^{0}"
         # scan range to plot
-        self.Xmin = 300.
+        self.Xmin = 250.
         self.Xmax = 850.
         self.Ymin = 200.
         self.Ymax = 1100.
@@ -50,12 +50,12 @@ class sms():
         # decay chain
         self.label = "pp #rightarrow #tilde{t} #bar{#tilde{t}}, #tilde{t} #rightarrow c #tilde{#chi}^{0}_{1}"
         # scan range to plot
-        self.Xmin = 300.
+        self.Xmin = 150.
         self.Xmax = 850.
-        self.Ymin = 200.
+        self.Ymin = 100.
         self.Ymax = 1100.
         self.Zmin = 0.04
-        self.Zmax = 2.
+        self.Zmax = 30.
         # produce sparticle
         self.sParticle = "m_{ #tilde{t}} [GeV]"
         # LSP
@@ -74,12 +74,12 @@ class sms():
         # decay chain
         self.label = "pp #rightarrow #tilde{t} #bar{#tilde{t}}, #tilde{t} #rightarrow b f #bar{f}' #tilde{#chi}^{0}_{1}"
         # scan range to plot
-        self.Xmin = 300.
+        self.Xmin = 250.
         self.Xmax = 850.
         self.Ymin = 200.
         self.Ymax = 1100.
-        self.Zmin = 0.0001
-        self.Zmax = 100.
+        self.Zmin = 0.04
+        self.Zmax = 2.
         # produce sparticle
         self.sParticle = "m_{ #tilde{t}} [GeV]"
         # LSP

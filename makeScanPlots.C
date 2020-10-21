@@ -21,14 +21,13 @@ std::map<std::string, std::pair<int, int> > smoothmap {
     {"T2bW", std::make_pair(12, 6)}, // Remove the problematic point, otherwise 16 for obs
     {"T2cc", std::make_pair(3, 6)}, 
     {"T2bWC", std::make_pair(6, 6)}, 
-    {"t2cc", std::make_pair(3, 6)}, 
+    //{"t2cc", std::make_pair(3, 6)}, 
     {"t2bWC", std::make_pair(6, 6)}, 
 
 };
 
-
 // contour edge : [low, high]
-std::map<std::string, std::pair<float, float> > edgemap {
+std::map<std::string, std::pair<float, float> > RemoveEdgemap {
     {"T2tt", std::make_pair(0., 90.)},
     //{"T2tb", std::make_pair(0., 87)},
     {"t2fbd", std::make_pair(75, 13)}, // Smoothing changed the results
@@ -38,6 +37,20 @@ std::map<std::string, std::pair<float, float> > edgemap {
     {"T2bW", std::make_pair(750, 475)}, // manually remove observed line
     {"t2cc", std::make_pair(80, 10)}, 
     {"t2bWC", std::make_pair(70, 19)}, 
+
+};
+
+// contour edge : [low, high]
+std::map<std::string, std::pair<float, float> > edgemap {
+    {"T2tt", std::make_pair(0., 88.)},
+    {"T2tb", std::make_pair(0., 210.)},
+    {"t2fbd", std::make_pair(79, 10.)}, // Smoothing changed the results
+    //{"T1tttt", std::make_pair(0., 200.)},
+    //{"T1ttbb", std::make_pair(6, 6)},
+    //{"T5ttcc", std::make_pair(6, 6)},
+    {"T2bW", std::make_pair(0., 180.)}, // manually remove observed line
+    {"t2cc", std::make_pair(80, 10.)}, 
+    {"t2bWC", std::make_pair(77, 10.)}, 
 
 };
 
@@ -132,15 +145,63 @@ void removeEdge(TGraph * g, TString signal = "T2tt", float edge_low = 0., float 
       il = i;
       getfirst = true;
     } 
-    cout << signal << "(x0, y0) = dy" << "(" << x0 << ", " << y0 << ") = " << x0 - y0 << endl;
+    //cout << signal << "(x0, y0) = dy" << "(" << x0 << ", " << y0 << ") = " << x0 - y0 << endl;
   }
   for (int i = 0; i < g->GetN(); ++i) {
     double x, y;
     g->GetPoint(i, x, y);
-    cout << signal << " index i: " << i << ", ih: " << ih << ", il: " << il << " (x, y) = dy " << "(" << x << ", " << y << ") = " << x - y << ", r: " << TMath::Sqrt((x - edge_low)*(x - edge_low) + (y - edge_high)*(y - edge_high)) << endl;
+    //cout << signal << " index i: " << i << ", ih: " << ih << ", il: " << il << " (x, y) = dy " << "(" << x << ", " << y << ") = " << x - y << ", r: " << TMath::Sqrt((x - edge_low)*(x - edge_low) + (y - edge_high)*(y - edge_high)) << endl;
     if((signal == "T2bW") && (TMath::Sqrt((x - edge_low)*(x - edge_low) + (y - edge_high)*(y - edge_high)) < 21.)) g->SetPoint(i, 0., 0.);
          if(i < ih  && ih >= 0) g->SetPoint(i, xh, yh);
     else if(i >= il && il >= 0) g->SetPoint(i, xl, yl);
+  }
+}
+
+void makeEdge(TGraph * g, TString signal = "T2tt", float edge_low = 0., float edge_high = 0.) {
+  double T2tb_const = 14.4819;
+  TGraph * old = (TGraph*) g->Clone();
+  double xh, yh, xl, yl; 
+  int ih = -1, il = -1;
+  bool getfirst = false;
+  for (int i = 0; i < g->GetN(); ++i) {
+    double x0, y0;
+    g->GetPoint(i, x0, y0);
+
+    if(signal == "T2bW" && y0 < 100) continue;
+    if(signal == "T2tb" && y0 < 100) continue;
+
+    if (edge_high != 0. && ((x0 - y0) <= edge_high)){
+      xh = x0;
+      yh = y0;
+      ih = i;
+    } else if (!getfirst && edge_low != 0. && ((x0 - y0) >= edge_low)){
+      xl = x0;
+      yl = y0;
+      il = i;
+      getfirst = true;
+    } 
+  }
+  if(ih < 0 && il < 0){
+    g->Set(g->GetN()+1);
+    g->SetPoint(0, 0., 0.);
+    ih = 0;
+    for(int i = 1; i < g->GetN(); ++i){
+      double xi, yi;
+      old->GetPoint(i - 1, xi, yi);
+      if(i == 1){xh = xi; yh = yi;}
+      g->SetPoint(i, xi, yi);
+    }
+  }
+
+  for (int i = 0; i < g->GetN(); ++i) {
+    double x, y;
+    g->GetPoint(i, x, y);
+    //cout << signal << " index i: " << i << ", ih: " << ih << ", il: " << il << " (x, y) = dy " << "(" << x << ", " << y << ") = " << x - y << ", r: " << TMath::Sqrt((x - edge_low)*(x - edge_low) + (y - edge_high)*(y - edge_high)) << " (xh, yh) = " << "(" << xh << ", " << yh << ")" << endl;
+    if((signal == "T2bW") && (TMath::Sqrt((x - 750)*(x - 750) + (y - 475)*(y - 475)) < 21.)) g->SetPoint(i, 0., 0.);
+
+         if(i <= ih && ih >= 0 && signal == "T2tb") g->SetPoint(i, 200. + T2tb_const, 200. + T2tb_const - (xh - yh));
+    else if(i <= ih && ih >= 0) g->SetPoint(i, 150., 150. - (xh - yh));
+    else if(i >= il && il >= 0) g->SetPoint(i, 150., xl - yl);
   }
 }
 
@@ -169,36 +230,37 @@ vector<TGraph*> DrawContours(TGraph2D &g2, int color, int style,
     newname += "_";
     newname += i;
     g->Write(newname);
-    // Removing the edge of contour
-    // Set the difference within 0.1 for now
-    for (int i = 0; i < g->GetN(); ++i) {
-      double  x,y;
-      g->GetPoint(i, x, y);
-      Int_t binx = hist->GetXaxis()->FindBin(x);
-      Int_t biny = hist->GetYaxis()->FindBin(y);
-      double val = hist->GetBinContent(binx, biny);
-      //std::cout <<  i <<" "<< x <<" : " << y <<" : " << val << std::endl;
-      //std::cout << name <<" ----------- "<< i <<" "<< x <<" : " << y <<" : " << val << std::endl;
-      if ((1-val) > 0.08 )
-      {
-        if ( 
-             ((signal == "T2tt" ) && ((x-y) < 88) && name != "ObsDown") || 
-             ((signal == "T2tt" ) && ((x-y) < 88) && y < 400 && name == "ObsDown") || 
-             ((signal == "T2bW" ) && ((x-y) < 200) && y > 100 && name == "ExpUp2") || 
-             ((signal == "T2tb" ) && ((x-y) <= 210 && y > 200) && name != "Observed") || 
-             ((signal == "T2tb" ) && ((x-y) <= 210 && y > 200 && x < 700) && name == "Observed") || 
-             (signal == "T1tttt" && (x-y) < 225 ) ||
-             (signal == "T1ttbb" && (x-y) < 225 )
-            )
-        {
-          std::cout << name <<"_" << g->GetN()<<" === "<< i <<" "<< x <<" : " << y <<" : " << val << std::endl;
-          g->RemovePoint(i);
-          // RemovePoint will produce a new Graph with N-1 points, 
-          // i will step back by 1
-          i -= 1;
-        }
-      }
-    }
+    //// Removing the edge of contour
+    //// Set the difference within 0.1 for now
+    //// ###### We are now extending the contour edge to the left side
+    //for (int i = 0; i < g->GetN(); ++i) {
+    //  double  x,y;
+    //  g->GetPoint(i, x, y);
+    //  Int_t binx = hist->GetXaxis()->FindBin(x);
+    //  Int_t biny = hist->GetYaxis()->FindBin(y);
+    //  double val = hist->GetBinContent(binx, biny);
+    //  //std::cout <<  i <<" "<< x <<" : " << y <<" : " << val << std::endl;
+    //  //std::cout << name <<" ----------- "<< i <<" "<< x <<" : " << y <<" : " << val << std::endl;
+    //  if ((1-val) > 0.08 )
+    //  {
+    //    if ( 
+    //         ((signal == "T2tt" ) && ((x-y) < 88) && name != "ObsDown") || 
+    //         ((signal == "T2tt" ) && ((x-y) < 88) && y < 400 && name == "ObsDown") || 
+    //         ((signal == "T2bW" ) && ((x-y) < 200) && y > 100 && name == "ExpUp2") || 
+    //         ((signal == "T2tb" ) && ((x-y) <= 210 && y > 200) && name != "Observed") || 
+    //         ((signal == "T2tb" ) && ((x-y) <= 210 && y > 200 && x < 700) && name == "Observed") || 
+    //         (signal == "T1tttt" && (x-y) < 225 ) ||
+    //         (signal == "T1ttbb" && (x-y) < 225 )
+    //        )
+    //    {
+    //      std::cout << name <<"_" << g->GetN()<<" === "<< i <<" "<< x <<" : " << y <<" : " << val << std::endl;
+    //      g->RemovePoint(i);
+    //      // RemovePoint will produce a new Graph with N-1 points, 
+    //      // i will step back by 1
+    //      i -= 1;
+    //    }
+    //  }
+    //}
     newname += "_Removed";
     g->Write(newname);
 
@@ -219,10 +281,18 @@ vector<TGraph*> DrawContours(TGraph2D &g2, int color, int style,
         Smooth(g, smoothN, 3, signal);
 
     std::pair<int, int > edgetemp = std::make_pair(0., 0.);
-    if (edgemap.find(signal.Data()) != edgemap.end()){
-        edgetemp = edgemap.at(signal.Data());
+    if (RemoveEdgemap.find(signal.Data()) != RemoveEdgemap.end()){
+        cout << name << endl;
+        edgetemp = RemoveEdgemap.at(signal.Data());
         removeEdge(g, signal, edgetemp.first, edgetemp.second);
     }
+
+    //std::pair<int, int > edgetemp = std::make_pair(0., 0.);
+    //if (edgemap.find(signal.Data()) != edgemap.end() && (name != "gexp" && signal == "T2tb") && (name == "gobs" || name == "gexp" || signal == "t2fbd" || signal == "t2cc" || signal == "t2bWC")){
+    //    cout << name << endl;
+    //    edgetemp = edgemap.at(signal.Data());
+    //    makeEdge(g, signal, edgetemp.first, edgetemp.second);
+    //}
 
     out.push_back(g);
     g->SetLineColor(color);
@@ -357,6 +427,10 @@ void makeScanPlots(const TString inputFileName = "results_T2tt.root", const TStr
 
   if (inputFileName.Contains("T2fbd") || inputFileName.Contains("T2bWC") || inputFileName.Contains("T2cc")){
     ybin_size = 5;
+  }
+  if (inputFileName.Contains("t2fbd") || inputFileName.Contains("t2bWC") || inputFileName.Contains("t2cc")){
+    ybin_size = 10; 
+    xbin_size = 10;
   }
   if (inputFileName.Contains("T2bW")){
     xbin_size = 5;

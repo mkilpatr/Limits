@@ -1,7 +1,7 @@
 #!/bin/bash
 
+declare -a StringArray=("T2tt" "T2bW" "T2tb" "T2fbd" "T2bWC" "T2cc" "t2fbd" "t2bWC" "t2cc" "T2All" "T1tttt" "T1ttbb" "T5ttcc")
 #declare -a StringArray=("T2tt" "T2bW" "T2tb" "T2fbd" "T2bWC" "T2cc" "t2fbd" "t2bWC" "t2cc" "T2All")
-declare -a StringArray=("T2bW" "T2All")
  
 # Iterate the string array using for loop
 for val in ${StringArray[@]}; do
