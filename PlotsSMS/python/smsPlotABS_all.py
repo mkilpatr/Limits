@@ -123,6 +123,15 @@ class smsPlotABS_all(object):
         if self.model.extraText :
             textNLONLL.Draw()
         self.c.textNLONLL = textNLONLL
+        # ArXiv
+        textarXiv = rt.TLatex(0.65, 0.61, "arXiv: XXXX.XXXXX")
+        textarXiv.SetNDC()
+        textarXiv.SetTextAlign(13)
+        textarXiv.SetTextFont(42)
+        textarXiv.SetTextSize(0.028)
+        if self.model.extraText :
+            textarXiv.Draw()
+        self.c.textarXiv = textarXiv
 
     def Save(self,label):
         # save the output
@@ -166,7 +175,7 @@ class smsPlotABS_all(object):
         LObs.Draw("LSAME")
         LExp.Draw("LSAME")
 
-        sigLabelDY = 0.59
+        sigLabelDY = 0.61
         LT2tt = rt.TGraph(2)
         LT2tt.SetName("LT2tt")
         LT2tt.SetTitle("LT2tt")
@@ -180,26 +189,9 @@ class smsPlotABS_all(object):
         
         textT2tt = rt.TLatex(self.model.Xmin+13*xRange/100, self.model.Ymax-1.20*yRange/100*10, self.model.label_T2tt)
         textT2tt.SetTextFont(42)
-        textT2tt.SetTextSize(0.028)
+        textT2tt.SetTextSize(0.025)
         textT2tt.Draw()
         self.c.textT2tt = textT2tt
-        
-        LT2bW = rt.TGraph(2)
-        LT2bW.SetName("LT2bW")
-        LT2bW.SetTitle("LT2bW")
-        LT2bW.SetLineColor(color(self.EXP["T2bW"]['colorLine']))
-        LT2bW.SetLineStyle(1)
-        LT2bW.SetLineWidth(4)
-        LT2bW.SetPoint(0,self.model.Xmin+3*xRange/100,  self.model.Ymax-(1.0 + sigLabelDY*1)*yRange/100*10)
-        LT2bW.SetPoint(1,self.model.Xmin+10*xRange/100, self.model.Ymax-(1.0 + sigLabelDY*1)*yRange/100*10)
-        LT2bW.Draw("LSAME")
-        self.c.LT2bW = LT2bW
-        
-        textT2bW = rt.TLatex(self.model.Xmin+13*xRange/100, self.model.Ymax-(1.20 + sigLabelDY*1)*yRange/100*10, self.model.label_T2bW)
-        textT2bW.SetTextFont(42)
-        textT2bW.SetTextSize(0.028)
-        textT2bW.Draw()
-        self.c.textT2bW = textT2bW
         
         LT2tb = rt.TGraph(2)
         LT2tb.SetName("LT2tb")
@@ -207,33 +199,33 @@ class smsPlotABS_all(object):
         LT2tb.SetLineColor(color(self.EXP["T2tb"]['colorLine']))
         LT2tb.SetLineStyle(1)
         LT2tb.SetLineWidth(4)
-        LT2tb.SetPoint(0,self.model.Xmin+3*xRange/100,  self.model.Ymax-(1.0 + sigLabelDY*2)*yRange/100*10)
-        LT2tb.SetPoint(1,self.model.Xmin+10*xRange/100, self.model.Ymax-(1.0 + sigLabelDY*2)*yRange/100*10)
+        LT2tb.SetPoint(0,self.model.Xmin+3*xRange/100,  self.model.Ymax-(1.0 + sigLabelDY*1)*yRange/100*10)
+        LT2tb.SetPoint(1,self.model.Xmin+10*xRange/100, self.model.Ymax-(1.0 + sigLabelDY*1)*yRange/100*10)
         LT2tb.Draw("LSAME")
         self.c.LT2tb = LT2tb
         
-        textT2tb = rt.TLatex(self.model.Xmin+13*xRange/100, self.model.Ymax-(1.20 + sigLabelDY*2)*yRange/100*10, self.model.label_T2tb)
+        textT2tb = rt.TLatex(self.model.Xmin+13*xRange/100, self.model.Ymax-(1.20 + sigLabelDY*1)*yRange/100*10, self.model.label_T2tb)
         textT2tb.SetTextFont(42)
-        textT2tb.SetTextSize(0.028)
+        textT2tb.SetTextSize(0.025)
         textT2tb.Draw()
         self.c.textT2tb = textT2tb
         
-        LT2fbd = rt.TGraph(2)
-        LT2fbd.SetName("LT2fbd")
-        LT2fbd.SetTitle("LT2fbd")
-        LT2fbd.SetLineColor(color(self.EXP["T2fbd"]['colorLine']))
-        LT2fbd.SetLineStyle(1)
-        LT2fbd.SetLineWidth(4)
-        LT2fbd.SetPoint(0,self.model.Xmin+3*xRange/100,  self.model.Ymax-(1.0 + sigLabelDY*3)*yRange/100*10)
-        LT2fbd.SetPoint(1,self.model.Xmin+10*xRange/100, self.model.Ymax-(1.0 + sigLabelDY*3)*yRange/100*10)
-        LT2fbd.Draw("LSAME")
-        self.c.LT2fbd = LT2fbd
+        LT2bW = rt.TGraph(2)
+        LT2bW.SetName("LT2bW")
+        LT2bW.SetTitle("LT2bW")
+        LT2bW.SetLineColor(color(self.EXP["T2bW"]['colorLine']))
+        LT2bW.SetLineStyle(1)
+        LT2bW.SetLineWidth(4)
+        LT2bW.SetPoint(0,self.model.Xmin+3*xRange/100,  self.model.Ymax-(1.0 + sigLabelDY*2)*yRange/100*10)
+        LT2bW.SetPoint(1,self.model.Xmin+10*xRange/100, self.model.Ymax-(1.0 + sigLabelDY*2)*yRange/100*10)
+        LT2bW.Draw("LSAME")
+        self.c.LT2bW = LT2bW
         
-        textT2fbd = rt.TLatex(self.model.Xmin+13*xRange/100, self.model.Ymax-(1.20 + sigLabelDY*3)*yRange/100*10, self.model.label_T2fbd)
-        textT2fbd.SetTextFont(42)
-        textT2fbd.SetTextSize(0.028)
-        textT2fbd.Draw()
-        self.c.textT2fbd = textT2fbd
+        textT2bW = rt.TLatex(self.model.Xmin+13*xRange/100, self.model.Ymax-(1.20 + sigLabelDY*2)*yRange/100*10, self.model.label_T2bW)
+        textT2bW.SetTextFont(42)
+        textT2bW.SetTextSize(0.025)
+        textT2bW.Draw()
+        self.c.textT2bW = textT2bW
         
         LT2bWC = rt.TGraph(2)
         LT2bWC.SetName("LT2bWC")
@@ -241,16 +233,33 @@ class smsPlotABS_all(object):
         LT2bWC.SetLineColor(color(self.EXP["T2bWC"]['colorLine']))
         LT2bWC.SetLineStyle(1)
         LT2bWC.SetLineWidth(4)
-        LT2bWC.SetPoint(0,self.model.Xmin+3*xRange/100,  self.model.Ymax-(1.0 + sigLabelDY*4)*yRange/100*10)
-        LT2bWC.SetPoint(1,self.model.Xmin+10*xRange/100, self.model.Ymax-(1.0 + sigLabelDY*4)*yRange/100*10)
+        LT2bWC.SetPoint(0,self.model.Xmin+3*xRange/100,  self.model.Ymax-(1.0 + sigLabelDY*3)*yRange/100*10)
+        LT2bWC.SetPoint(1,self.model.Xmin+10*xRange/100, self.model.Ymax-(1.0 + sigLabelDY*3)*yRange/100*10)
         LT2bWC.Draw("LSAME")
         self.c.LT2bWC = LT2bWC
         
-        textT2bWC = rt.TLatex(self.model.Xmin+13*xRange/100, self.model.Ymax-(1.20 + sigLabelDY*4)*yRange/100*10, self.model.label_T2bWC)
+        textT2bWC = rt.TLatex(self.model.Xmin+13*xRange/100, self.model.Ymax-(1.20 + sigLabelDY*3)*yRange/100*10, self.model.label_T2bWC)
         textT2bWC.SetTextFont(42)
-        textT2bWC.SetTextSize(0.028)
+        textT2bWC.SetTextSize(0.025)
         textT2bWC.Draw()
         self.c.textT2bWC = textT2bWC
+        
+        LT2fbd = rt.TGraph(2)
+        LT2fbd.SetName("LT2fbd")
+        LT2fbd.SetTitle("LT2fbd")
+        LT2fbd.SetLineColor(color(self.EXP["T2fbd"]['colorLine']))
+        LT2fbd.SetLineStyle(1)
+        LT2fbd.SetLineWidth(4)
+        LT2fbd.SetPoint(0,self.model.Xmin+3*xRange/100,  self.model.Ymax-(1.0 + sigLabelDY*4)*yRange/100*10)
+        LT2fbd.SetPoint(1,self.model.Xmin+10*xRange/100, self.model.Ymax-(1.0 + sigLabelDY*4)*yRange/100*10)
+        LT2fbd.Draw("LSAME")
+        self.c.LT2fbd = LT2fbd
+        
+        textT2fbd = rt.TLatex(self.model.Xmin+13*xRange/100, self.model.Ymax-(1.20 + sigLabelDY*4)*yRange/100*10, self.model.label_T2fbd)
+        textT2fbd.SetTextFont(42)
+        textT2fbd.SetTextSize(0.025)
+        textT2fbd.Draw()
+        self.c.textT2fbd = textT2fbd
         
         LT2cc = rt.TGraph(2)
         LT2cc.SetName("LT2cc")
@@ -265,7 +274,7 @@ class smsPlotABS_all(object):
         
         textT2cc = rt.TLatex(self.model.Xmin+13*xRange/100, self.model.Ymax-(1.20 + sigLabelDY*5)*yRange/100*10, self.model.label_T2cc)
         textT2cc.SetTextFont(42)
-        textT2cc.SetTextSize(0.028)
+        textT2cc.SetTextSize(0.025)
         textT2cc.Draw()
         self.c.textT2cc = textT2cc
         
