@@ -807,8 +807,8 @@ def writeSR(signal):
                     dc.write(line)
                 dc.write("* autoMCStats 10 1 1") # background + signal
         os.remove(tmpdc)
-    # with open('BkgExpected.json', 'w') as outfile:
-        # json.dump(sepYields, outfile)
+    with open('BkgExpected.json', 'w') as outfile:
+        json.dump(sepYields, outfile)
 
 readUncs()
 for sig in signals:
@@ -819,4 +819,4 @@ for sig in signals:
     writePhocr(sig)
     writeQCDcr(sig)
     writeSR(sig)
-    # if not args.manySignals and args.binSelect == "all": BkgPlotter('BkgExpected.json', 'SumOfBkg', sig)
+    if not args.manySignals and args.binSelect == "all": BkgPlotter('BkgExpected.json', 'SumOfBkg', sig)

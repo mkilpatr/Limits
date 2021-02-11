@@ -211,7 +211,7 @@ vector<TGraph*> DrawContours(TGraph2D &g2, int color, int style,
   TH2D* hist = g2.GetHistogram();
   TVirtualHistPainter* histptr = hist->GetPainter();
   TList *l = histptr->GetContourList(1.);
-  hist->Write(name.c_str());
+  //hist->Write(name.c_str());
   if(!l)
     return out;
   bool added = false;
@@ -225,13 +225,6 @@ vector<TGraph*> DrawContours(TGraph2D &g2, int color, int style,
     {
         continue;
     }
-
-    TString newname(name);
-    newname += "_";
-    newname += i;
-    g->Write(newname);
-    newname += "_Removed";
-    g->Write(newname);
 
     // modification of smoothing
     std::string name = g2.GetName();
@@ -350,6 +343,8 @@ void makeScanPlots(const TString inputFileName = "results_T2tt.root", const TStr
   for(int ibinx = 1; ibinx <= hxsecexp->GetNbinsX()+1; ++ibinx) {
     for(int ibiny = 1; ibiny <= hxsecexp->GetNbinsY()+1; ++ibiny) {
       if(hxsecexp->GetBinContent(ibinx, ibiny) != 0.0) {
+        if(hxsecexp->GetYaxis()->GetBinLowEdge(ibiny) > 825) continue;
+        if(hxsecexp->GetXaxis()->GetBinCenter(ibinx) > 850) continue;
         mstopsxsec.push_back(hxsecexp->GetXaxis()->GetBinCenter(ibinx));
         mlspsxsec.push_back(hxsecexp->GetYaxis()->GetBinLowEdge(ibiny));
         expxsec.push_back(hxsecexp->GetBinContent(ibinx, ibiny));
@@ -361,6 +356,8 @@ void makeScanPlots(const TString inputFileName = "results_T2tt.root", const TStr
   for(int ibinx = 1; ibinx <= hexp->GetNbinsX()+1; ++ibinx) {
     for(int ibiny = 1; ibiny <= hexp->GetNbinsY()+1; ++ibiny) {
       if(hexp->GetBinContent(ibinx, ibiny) != 0.0) {
+        if(hexp->GetYaxis()->GetBinLowEdge(ibiny) > 825) continue;
+        if(hexp->GetXaxis()->GetBinCenter(ibinx) > 850) continue;
         mstops.push_back(hexp->GetXaxis()->GetBinCenter(ibinx));
         mlsps.push_back(hexp->GetYaxis()->GetBinLowEdge(ibiny));
         obs.push_back(hobs ? hobs->GetBinContent(ibinx, ibiny) : hexp->GetBinContent(ibinx, ibiny));
@@ -450,10 +447,10 @@ void makeScanPlots(const TString inputFileName = "results_T2tt.root", const TStr
   dots.Draw("p same");
   c.Print("limit_scan.pdf");
 
-  hlimexp->Write("hXsec_exp_corr");
+  //hlimexp->Write("hXsec_exp_corr");
   hlimobs->Write("hXsec_obs_corr");
-  hxsecexp->Write("hXsec_exp");
-  hxsecobs->Write("hXsec_obs");
+  //hxsecexp->Write("hXsec_exp");
+  //hxsecobs->Write("hXsec_obs");
 
   TString gname = "graph_smoothed";
 
@@ -495,16 +492,16 @@ void makeScanPlots(const TString inputFileName = "results_T2tt.root", const TStr
     cexpdown.at(ilim)->SetName(gname + "_ExpM" + add);
     cexpdown.at(ilim)->Write(gname + "_ExpM" + add);
   }
-  for(unsigned int ilim = 0; ilim < cexpup2.size(); ++ilim) {
-    TString add = ilim > 0 ? "_" + TString(to_string(ilim)) : "";
-    cexpup2.at(ilim)->SetName(gname + "_ExpP2" + add);
-    cexpup2.at(ilim)->Write(gname + "_ExpP2" + add);
-  }
-  for(unsigned int ilim = 0; ilim < cexpdown2.size(); ++ilim) {
-    TString add = ilim > 0 ? "_" + TString(to_string(ilim)) : "";
-    cexpdown2.at(ilim)->SetName(gname + "_ExpM2" + add);
-    cexpdown2.at(ilim)->Write(gname + "_ExpM2" + add);
-  }
+  //for(unsigned int ilim = 0; ilim < cexpup2.size(); ++ilim) {
+  //  TString add = ilim > 0 ? "_" + TString(to_string(ilim)) : "";
+  //  cexpup2.at(ilim)->SetName(gname + "_ExpP2" + add);
+  //  cexpup2.at(ilim)->Write(gname + "_ExpP2" + add);
+  //}
+  //for(unsigned int ilim = 0; ilim < cexpdown2.size(); ++ilim) {
+  //  TString add = ilim > 0 ? "_" + TString(to_string(ilim)) : "";
+  //  cexpdown2.at(ilim)->SetName(gname + "_ExpM2" + add);
+  //  cexpdown2.at(ilim)->Write(gname + "_ExpM2" + add);
+  //}
 
   file.Close();
 

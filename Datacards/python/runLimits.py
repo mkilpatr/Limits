@@ -557,6 +557,26 @@ def calcLimit(config, signal):
                 tempObsLimit = line.replace('Observed', signal + ' obs')
         result = (tempLimit, tempObsLimit, '')
 
+    elif config.limitmethod == 'GoodnessOfFit':
+        # runLimitsCommand =  'combine -M Asymptotic '+combinedDatacard+' --run
+        # expected -t -1 --rMin 0 --rMax 10 -n '+signal
+        mstop = int(signal.split('_')[1])
+        mlsp = int(signal.split('_')[2])
+        sigtype = signal.split('_')[0]
+        runLimitsCommand = 'combine -M GoodnessOfFit ' + combinedDatacard + ' --algo=saturated -t 100 -s 123456'
+        output = commands.getoutput(runLimitsCommand)
+        lprint(runLimitsCommand, output)
+
+        # pull the expected limit out and store
+        tempLimit = ''
+        tempObsLimit = ''
+        for line in output.split('\n'):
+            if 'Expected 50' in line:
+                tempLimit = line.replace('Expected', signal + ' expected')
+            elif 'Observed' in line:
+                tempObsLimit = line.replace('Observed', signal + ' obs')
+        result = (tempLimit, tempObsLimit, '')
+
     elif config.limitmethod == 'Significance':
         runLimitsCommand = 'combine -M Significance ' + combinedDatacard + '  --uncapped 1 -n ' + signal
         output = commands.getoutput(runLimitsCommand)
