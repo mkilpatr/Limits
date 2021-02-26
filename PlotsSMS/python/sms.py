@@ -133,7 +133,7 @@ class sms():
         self.Xmax = 1500.
         self.Ymin = 0.
         self.Ymax = 1000.
-        self.Zmin = 0.0001
+        self.Zmin = 0.0005
         self.Zmax = 100.
         # produce sparticle
         self.sParticle = "m_{ #tilde{t}} [GeV]"
@@ -157,7 +157,7 @@ class sms():
         self.Xmax = 1400.
         self.Ymin = 0.
         self.Ymax = 850.
-        self.Zmin = 0.0001
+        self.Zmin = 0.0005
         self.Zmax = 100.
         # produce sparticle
         self.sParticle = "m_{ #tilde{t}} [GeV]"
@@ -183,7 +183,7 @@ class sms():
         self.Xmax = 1400.
         self.Ymin = 0.
         self.Ymax = 850.
-        self.Zmin = 0.0001
+        self.Zmin = 0.0005
         self.Zmax = 100.
         # produce sparticle
         self.sParticle = "m_{ #tilde{t}} [GeV]"
@@ -285,7 +285,7 @@ class sms():
         self.Ymin = 0.
         self.Ymax = 2100.
         self.Zmin = 0.0001
-        self.Zmax = 2.
+        self.Zmax = 0.2
         # produce sparticle
         self.sParticle = "m_{#tilde{g}} [GeV]"
         # LSP

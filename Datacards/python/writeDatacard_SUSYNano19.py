@@ -138,6 +138,7 @@ with open(json_bkgPred) as jf:
     yields  = j_bkg['yieldsMap']
     binlist = j_bkg['binlist']
     binnum  = j_bkg['binNum']
+    srmerge = j_bkg['srmerge']
     crbinlist = {
         'lepcr': yields['lepcr_data'].keys(),
         'phocr': yields['phocr_data'].keys(),
@@ -180,12 +181,20 @@ def parseSigBinMap(process, srbin, cr_description, sigyields_dict, lepyields_dic
     '''reduced efficiency method '''
 
     lepcr_process = "lepcr_" + process
-    results = sigyields_dict[process][srbin][0]
+    results = 0.
+    sumE2 = 0.
+    if not srmerge:
+        results = sigyields_dict[process][srbin][0]
+        stat_sig = sigyields_dict[process][srbin][1]
+    else:
+        for entry in srmerge[srbin].replace(' ','').split('+'):
+            results += sigyields_dict[process][entry][0]
+            sumE2 += (1 - toUncSep(sigyields_dict[process][entry][0], math.sqrt(sigyields_dict[process][entry][1])))**2
+    stat = math.sqrt(sumE2)*results
     #print("descritipn: ", cr_description, results)
     srs = []
     crs = []
     for entry in cr_description.replace(' ','').split('+'):
-        print(entry)
         if "*" not in entry:
             srs.append(srbin)
             crs.append(entry)
@@ -203,7 +212,10 @@ def parseSigBinMap(process, srbin, cr_description, sigyields_dict, lepyields_dic
         sigcr = sigyields_dict[lepcr_process][cr][0] if cr in sigyields_dict[lepcr_process] else 0
         if llcr != 0:
             results -= sigcr * llsr/ llcr
-    return results if results > 0 else 0
+    if results > 0:
+        return 0, stat
+    else:
+        return results, stat
 
 def parseUncUnitBinMap(process, srbin, cr_description):
     '''reduced efficiency method '''
@@ -225,6 +237,29 @@ def parseUncUnitBinMap(process, srbin, cr_description):
         srStat += yields[process][sr][1]*yields[process][sr][1]
 
     return srYield, math.sqrt(srStat)
+
+def sumSSRYields(process, bin, cr_description, yields_dict):
+    values = []
+    params = []
+    total = 0.
+    sumE2 = 0.
+    srunit = 0.
+    stat_srunit = 0.
+    nunit=0
+    for entry in cr_description.replace(' ','').split('+'):
+        sr = entry
+        #print(sr)
+        nunit += 1
+        srunit += yields_dict[process][sr][0]
+        stat_srunit += yields_dict[process][sr][1]**2
+
+        total = srunit
+
+        sumE2 += (1 - toUncSep(srunit, math.sqrt(stat_srunit)))**2
+
+    stat = math.sqrt(sumE2)*total
+
+    return total, stat
 
 def sumBkgYields(process, signal, bin, cr_description, yields_dict):
     values = []
@@ -430,8 +465,9 @@ def readUncs():
                         elif 'qcdcr' in bin_str and ('T2' in proc_str or 'T1' in proc_str or 'T5' in proc_str): 
                             proc_str = 'qcdcr_' + proc_str
                         elif proc_str not in ['TTZ', 'Rare'] and 'cr' not in bin_str and ('T2' not in proc_str and 'T1' not in proc_str and 'T5' not in proc_str):
-                            srYield, srStat = parseUncUnitBinMap(proc_str, bin_str, binMaps[processMap[proc_str]][bin_str])
-
+                            if bin_str in binMaps[processMap[proc_str]]:
+                                srYield, srStat = parseUncUnitBinMap(proc_str, bin_str, binMaps[processMap[proc_str]][bin_str])
+                            else: continue
                         if 'cr' in bin_str: print("{0} {1}".format(proc_str, bin_str))
 
                         if 'T2' in proc_str or 'T1' in proc_str or 'T5' in proc_str:
@@ -733,34 +769,49 @@ def writeSR(signal):
         cb.AddProcesses(procs = ['ttbarplusw', 'znunu', 'qcd', 'TTZ', 'Rare'], bin = [(0, bin)], signal=False)
         expected = 0.
         sepBins = {}
+        print(bin)
         for proc in ['TTZ', 'Rare']:
-            expected += yields[proc][bin][0]
-            sepBins[proc] = (yields[proc][bin][0], yields[proc][bin][1])
+            if not srmerge:
+                expected += yields[proc][bin][0]
+                sepBins[proc] = (yields[proc][bin][0], yields[proc][bin][1])
+            else:
+                sepExpected, sepStat = sumSSRYields(proc, bin, srmerge[bin], yields)
+                expected += sepExpected
+                sepBins[proc] = (sepExpected, sepStat)
         for proc in ['ttbarplusw', 'znunu', 'qcd']:
             sepExpected, sepStat = sumBkgYields(proc, signal, bin, binMaps[processMap[proc]][bin], yields)
             expected += sepExpected
             sepBins[proc] = (sepExpected, sepStat)
-
         if reduceEff:
-            sigyield = parseSigBinMap(signal, bin, binMaps[processMap["ttbarplusw"]][bin], sigYields, yields)
+            sigyield, stat_sigyield  = parseSigBinMap(signal, bin, binMaps[processMap["ttbarplusw"]][bin], sigYields, yields)
         else:
-            sigyield = sigYields[signal][bin][0]
-        sepBins[signal] = (sigyield, sigYields[signal][bin][1])
+            if not srmerge:
+                sigyield = sigYields[signal][bin][0]
+            else:
+                sigyield, stat_sigyield = sumSSRYields(signal, bin, srmerge[bin], sigYields)
+        sepBins[signal] = (sigyield, sigYields[signal][bin][1] if not srmerge else stat_sigyield)
         if not blind: 
-            cb.ForEachObs(lambda obs : obs.set_rate(yields['data'][bin][0]))
-            sepBins["data"] = (yields['data'][bin][0], yields['data'][bin][1])
+            datayield = 0.
+            stat_datayield = 0.
+            if not srmerge:
+                datayields = yields['data'][bin][0]
+                sepBins["data"] = (yields['data'][bin][0], yields['data'][bin][1])
+            else:
+                datayield, stat_datayield = sumSSRYields("data", bin, srmerge[bin], yields)
+                sepBins["data"] = (datayield, stat_datayield)
+            cb.ForEachObs(lambda obs : obs.set_rate(datayield))
         else:         
             cb.ForEachObs(lambda obs : obs.set_rate(expected))
         sepYields[bin] = sepBins
         cb.cp().process(['signal']).ForEachProc(lambda p : p.set_rate(sigyield))
-        cb.cp().process(['TTZ','Rare']).ForEachProc(lambda p : p.set_rate(yields[p.process()][bin][0]))
+        cb.cp().process(['TTZ','Rare']).ForEachProc(lambda p : p.set_rate(sepBins[p.process()][0]))
 
         trootout = os.path.join(outputdir, signal, '%s.root'%bin)
         tmproot = TFile(trootout, "Recreate")
         tmproot.cd()
-        MakeStatHist("signal", sigYields[signal][bin], forceContent=sigyield )
-        MakeStatHist("TTZ", yields['TTZ'][bin])
-        MakeStatHist("Rare", yields['Rare'][bin])
+        MakeStatHist("signal", sepBins[signal], forceContent=sigyield )
+        MakeStatHist("TTZ", sepBins['TTZ'])
+        MakeStatHist("Rare", sepBins['Rare'])
         MakeObsHist(cb.GetObservedRate())
         if bin not in mergedbins:
             # one to one CR
