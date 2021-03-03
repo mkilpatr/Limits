@@ -139,6 +139,7 @@ with open(json_bkgPred) as jf:
     binlist = j_bkg['binlist']
     binnum  = j_bkg['binNum']
     srmerge = j_bkg['srmerge']
+    ssrMaps = j_bkg['ssrMaps']
     crbinlist = {
         'lepcr': yields['lepcr_data'].keys(),
         'phocr': yields['phocr_data'].keys(),
@@ -374,32 +375,25 @@ class Uncertainty:
         #if self.value > 2:
         #    raise ValueError('Invalid unc value %f for %s!'%(self.value, self.name))
 
-def sumUncLogNorm(unc_list, p, bin = "", sample = "", type_ = {}):
+def sumUncLogNorm(unc_list_up, unc_list_dn, bin = "", sample = "", type_ = {}):
 # syst_histo[systematic][bintype][region][direction]
     log_syst_up_sum = 0.
     log_syst_down_sum = 0.
     log_syst_up_total = 0.
     log_syst_down_total = 0.
     debug = False
-    if p == 0:
-        systUnc_rel_pieces[sample][bin] = [1.0, 1.0]
-        return [0,0]
-    for err, type in zip(unc_list, type_):
-        p_up    = err[1]
-        p_down  = err[0]
+    for type in type_:
+        p_up    = unc_list_up[type]
+        p_down  = unc_list_dn[type]
         if p_up == 0 or p_down == 0: continue
-        log_syst_up     = p_up / p
-        log_syst_down   = p_down / p
-        if sample in test_samp and bin in test_bin and debug:
-            print "%20s Up: %8.6f Down: %8.6f" % (type, log_syst_up, log_syst_down)
+        log_syst_up     = p_up
+        log_syst_down   = p_down if p_down > -100. else 1.0
         # If both systematics go the same direction, need to symmetrize
         # Because all the nuisance parameters are log-normal, symmetrize by dividing by the geometric mean
-        if ((log_syst_up > 1) and (log_syst_down > 1)) or ((log_syst_up < 1) and (log_syst_down < 1)):
+        if (((log_syst_up > 1) and (log_syst_down > 1)) or ((log_syst_up < 1) and (log_syst_down < 1)) and p_down > -100.):
             geometric_mean = np.sqrt(log_syst_up * log_syst_down)
             log_syst_up   /= geometric_mean
             log_syst_down /= geometric_mean
-            if sample in test_samp and bin in test_bin and debug and ((log_syst_up > 1 and log_syst_down < 1) or (log_syst_down > 1 and log_syst_up < 1)):
-                print "%20s Up: %8.6f Down: %8.6f geometric_mean: %8.6f" % (type, log_syst_up, log_syst_down, geometric_mean)
         #if sample in ['TTZ', 'Rare'] and log_syst_up > 2.:
         #    log_syst_up = 2.0
         # Because all the nuisance parameters are log-normal, sum the log of the ratios in quadrature
@@ -414,13 +408,12 @@ def sumUncLogNorm(unc_list, p, bin = "", sample = "", type_ = {}):
             log_syst_down_sum   += np.log(log_syst_up)**2
         log_syst_up_total   = np.exp( np.sqrt(log_syst_up_sum))
         log_syst_down_total = np.exp(-np.sqrt(log_syst_down_sum)) # Minus sign is needed because this is the *down* ratio
-    if sample in test_samp and bin in test_bin and debug:
-        print bin
-        print sample
-        print "pred={0}, log_syst_up_total={1}, log_syst_down_total={2}".format(p, log_syst_up_total, log_syst_down_total)
-    if bin != "" and sample != "":
-        systUnc_rel_pieces[sample][bin] = [log_syst_down_total, log_syst_up_total]
-    return [p - log_syst_down_total*p, log_syst_up_total*p - p]
+        if debug and (math.isnan(log_syst_down_total) or math.isnan(log_syst_up_total)):
+            print bin
+            print sample
+            print "log_syst_up={0}, log_syst_down={1}".format(log_syst_up, log_syst_down)
+            print "log_syst_up_total={0}, log_syst_down_total={1}".format(log_syst_up_total, log_syst_down_total)
+    return [log_syst_down_total, log_syst_up_total]
 
 def badSystematic(UpRatio, DownRatio):
     log_ratio_difference = abs(math.log(UpRatio)) - abs(math.log(DownRatio))
@@ -454,6 +447,7 @@ def killSystematic(central_value, stat_uncertainty, UpRatio, DownRatio):
 
 unc_def = {}
 unc_dict = Vividict() # bin -> { proc -> { uncname -> Uncertainty } } , proc can be 'signal'
+
 def readUncs():
     unc_processed = set()
     with open(uncertainty_definitions) as f:
@@ -507,7 +501,8 @@ def readUncs():
                         uncavg = oneSidedSystematic(uncavg[1], uncavg[0])
 
                         crproc = 'lepcr_' if 'lepcr' in bin_str else ('qcdcr_' if 'qcdcr' in bin_str else '')
-                        
+                        srYield = 0.
+                        srStat = 0.
                         if 'lepcr' in bin_str and ('T2' in proc_str or 'T1' in proc_str or 'T5' in proc_str): 
                             proc_str = 'lepcr_' + proc_str
                         elif 'qcdcr' in bin_str and ('T2' in proc_str or 'T1' in proc_str or 'T5' in proc_str): 
@@ -515,8 +510,9 @@ def readUncs():
                         elif proc_str not in ['TTZ', 'Rare'] and 'cr' not in bin_str and ('T2' not in proc_str and 'T1' not in proc_str and 'T5' not in proc_str):
                             if bin_str in binMaps[processMap[proc_str]]:
                                 srYield, srStat = parseUncUnitBinMap(proc_str, bin_str, binMaps[processMap[proc_str]][bin_str])
+                            elif bin_str in ssrMaps:
+                                srYield, srStat = parseUncUnitBinMap(proc_str, ssrMaps[bin_str], binMaps[processMap[proc_str]][ssrMaps[bin_str]])
                             else: continue
-                        if 'cr' in bin_str: print("{0} {1}".format(proc_str, bin_str))
 
                         if 'T2' in proc_str or 'T1' in proc_str or 'T5' in proc_str:
                             uncavg = killSystematic(sigYields[proc_str][bin_str][0], sigYields[proc_str][bin_str][1], uncavg[1], uncavg[0])
@@ -538,14 +534,9 @@ def readUncs():
                 if bin_str=='all': bins = binlist
                 elif bin_str in crbinlist: bins = crbinlist[bin_str]
                 if "Up" not in uncname:
-                    if not srmerge or bin_str == 'all' or bins == crbinlist[bin_str]:
-                        for bin in bins:
-                            for proc in processes:
-                                unc_dict[bin][proc][uncname] = unc
-                    else:
-                        for entry in srmerge[bin].replace(' ','').split('+'):
-                            for proc in processes:
-                                unc_dict[entry][proc][uncname] = unc
+                    for bin in bins:
+                        for proc in processes:
+                            unc_dict[bin][proc][uncname] = unc
  
     unc_defined = set(unc_def.keys())
     if unc_defined!=unc_processed:
@@ -884,7 +875,7 @@ def writeSR(signal):
                 rateParamFixes[rName] = rlt['rateParam']
                 MakeStatHist(proc, rlt['yield'], forceContent=1)
         # syst unc
-        if bin in unc_dict and not srmerge:
+        if bin in unc_dict and "+" not in srmerge[bin]:
             for proc in ['signal', signal]+bkgprocesses:
                 if proc in unc_dict[bin]:
                     for unc in unc_dict[bin][proc].values():
@@ -894,22 +885,31 @@ def writeSR(signal):
                         else:
                             cb.cp().process([procname_in_dc]).AddSyst(cb, unc.name, unc.type, ch.SystMap()(unc.value))
         else:
-            for proc in ['signal', signal]+bkgprocesses:
-                unc_dict_sum = Vividict()               
-                unc_list = []
-                #Uncertainty(uncname.strip("_Down"), unctype, uncavg[0], uncavg[1])
-                for entry in srmerge[srbin].replace(' ','').split('+'):
-                    unc = unc_dict[entry][proc].values()
-                    unc_list.append((unc.value, unc.value2))
-
-                unc_up, unc_dn = sumUncLogNorm(unc_dict, yields_total[bin], bin, "", absUnc[bin].keys())
-                if proc in unc_dict[bin]:
-                    for unc in unc_dict[bin][proc].values():
-                        procname_in_dc = proc if proc in bkgprocesses else 'signal'
-                        if unc.value2 > -100.:
-                            cb.cp().process([procname_in_dc]).AddSyst(cb, unc.name, unc.type, ch.SystMap()((unc.value,unc.value2)))
-                        else:
-                            cb.cp().process([procname_in_dc]).AddSyst(cb, unc.name, unc.type, ch.SystMap()(unc.value))
+            for proc in [signal]+bkgprocesses:
+                for uncType in unc_def.keys():
+                    unc_list_up = {}
+                    unc_list_dn = {}
+                    uncLabel = ''
+                    for entry in srmerge[bin].replace(' ','').split('+'):
+                        if proc in unc_dict[entry]:
+                            for unc in unc_dict[entry][proc].values():
+                                if uncType != unc.name: continue
+                                uncLabel = unc.type
+                                if uncType == 'lumi': 
+                                    unc_list_up[bin] = unc.value
+                                    unc_list_dn[bin] = unc.value2
+                                    break
+                                else:
+                                    unc_list_up[entry] = unc.value
+                                    unc_list_dn[entry] = unc.value2
+                                    
+                    unc_up, unc_dn = sumUncLogNorm(unc_list_up, unc_list_dn, bin, "", unc_list_up.keys())
+                    procname_in_dc = proc if proc in bkgprocesses else 'signal'
+                    if uncLabel == '': continue
+                    if unc_dn > -100.:
+                        cb.cp().process([procname_in_dc]).AddSyst(cb, uncType, uncLabel, ch.SystMap()((unc_up,unc_dn)))
+                    else:
+                        cb.cp().process([procname_in_dc]).AddSyst(cb, uncType, uncLabel, ch.SystMap()(unc_up))
         # fix rateParams
         tmproot.Close()
         tmpdc = os.path.join(outputdir, signal, '%s.tmp'%bin)
