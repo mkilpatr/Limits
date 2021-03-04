@@ -212,8 +212,9 @@ def parseSigBinMap(process, srbin, cr_description, sigyields_dict, lepyields_dic
         llsr = lepyields_dict["ttbarplusw"][sr][0] if sr in lepyields_dict["ttbarplusw"] else 0
         sigcr = sigyields_dict[lepcr_process][cr][0] if cr in sigyields_dict[lepcr_process] else 0
         if llcr != 0:
+            before = results
             results -= sigcr * llsr/ llcr
-    if results > 0:
+    if results < 0:
         return 0, stat
     else:
         return results, stat
@@ -695,7 +696,7 @@ def BkgPlotter(json, outputBase, signal):
     gROOT.SetBatch(1)
     with open(json) as jf:
         j = json_load_byteified(jf)
-    nbins = 183
+    nbins = len(binlist)
     bkgstack = THStack("bkg", "Sum of Background in Search Region")
     c = TCanvas('c1', 'Sum of Background in Search Region', 200, 10, 700, 500)
     httbar = TH1F('httbar', 'ttbar yields', nbins, 0, nbins)
@@ -812,6 +813,8 @@ def writeSR(signal):
         cb.AddProcesses(procs = ['signal'],     bin = [(0, bin)], signal=True)
         cb.AddProcesses(procs = ['ttbarplusw', 'znunu', 'qcd', 'TTZ', 'Rare'], bin = [(0, bin)], signal=False)
         expected = 0.
+        sigyield = 0.
+        stat_sigyield = 0.
         sepBins = {}
         print(bin)
         for proc in ['TTZ', 'Rare']:
@@ -831,9 +834,10 @@ def writeSR(signal):
         else:
             if not srmerge:
                 sigyield = sigYields[signal][bin][0]
+                stat_sigyield = sigYields[signal][bin][1]
             else:
                 sigyield, stat_sigyield = sumSSRYields(signal, bin, srmerge[bin], sigYields)
-        sepBins[signal] = (sigyield, sigYields[signal][bin][1] if not srmerge else stat_sigyield)
+        sepBins[signal] = (sigyield, stat_sigyield)
         if not blind: 
             datayield = 0.
             stat_datayield = 0.
