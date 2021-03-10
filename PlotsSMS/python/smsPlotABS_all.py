@@ -124,7 +124,7 @@ class smsPlotABS_all(object):
             textNLONLL.Draw()
         self.c.textNLONLL = textNLONLL
         # ArXiv
-        textarXiv = rt.TLatex(0.65, 0.61, "arXiv: XXXX.XXXXX")
+        textarXiv = rt.TLatex(0.65, 0.61, "arXiv:2103.01290")
         textarXiv.SetNDC()
         textarXiv.SetTextAlign(13)
         textarXiv.SetTextFont(42)

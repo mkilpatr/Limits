@@ -1,8 +1,8 @@
 #!/bin/bash
 
-declare -a StringArray=("T2tt" "T2bW" "T2tb" "T2fbd" "T2bWC" "T2cc" "T1tttt" "T1ttbb" "T5ttcc")
-#declare -a StringArray=("T2tt" "T2bW" "T2tb" "T2fbd" "T2bWC" "T2cc" "t2fbd" "t2bWC" "t2cc" "T2All")
-#declare -a StringArray=("t2fbd" "t2bWC" "t2cc")
+#declare -a StringArray=("T2tt" "T2bW" "T2tb" "T2fbd" "T2bWC" "T2cc" "T1tttt" "T1ttbb" "T5ttcc")
+#declare -a StringArray=("T2tt" "T2bW" "T2tb" "T2fbd" "T2bWC" "T2cc" "T1tttt" "T1ttbb" "T5ttcc" "t2fbd" "t2bWC" "t2cc" "T2All")
+declare -a StringArray=("t2fbd" "t2bWC" "t2cc")
  
 # Iterate the string array using for loop
 for val in ${StringArray[@]}; do
@@ -26,10 +26,10 @@ for val in ${StringArray[@]}; do
         
 	if [ "$val" != "T2All" ]; then
 		echo python Datacards/python/runLimits.py -c dc_SUSY19Nano_setup_Local.conf -f -e limits_multi_${loc}_081820_UnblindRun2 -a ${loc}_signals${conf}.conf -n ${val}
-		python Datacards/python/runLimits.py -c dc_SUSY19Nano_setup_Local.conf -f -e limits_multi_${loc}_081820_UnblindRun2 -a ${loc}_signals${conf}.conf -n ${val}
+		#python Datacards/python/runLimits.py -c dc_SUSY19Nano_setup_Local.conf -f -e limits_multi_${loc}_081820_UnblindRun2 -a ${loc}_signals${conf}.conf -n ${val}
 	fi
 
-	echo python PlotsSMS/python/makeSMSplots.py PlotsSMS/config/${val}_SUS16005.cfg ${val}_v7smooth_${suffix}
-	python PlotsSMS/python/makeSMSplots.py PlotsSMS/config/${val}_SUS16005.cfg ${val}_v7smooth_${suffix}
+	echo python PlotsSMS/python/makeSMSplots.py PlotsSMS/config/${val}_SUS16005.cfg ${val}_v7smooth_RemoveEdge_${suffix}
+	python PlotsSMS/python/makeSMSplots.py PlotsSMS/config/${val}_SUS16005.cfg ${val}_v7smooth_RemoveEdge_${suffix}
 
 done

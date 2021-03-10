@@ -134,6 +134,17 @@ class smsPlotABS(object):
         if self.model.extraText :
             textNLONLL.Draw()
         self.c.textNLONLL = textNLONLL
+        # ArXiv
+        if self.model.modelname in ['T2fbd', 'T2cc', 'T2bWC', 't2fbd', 't2cc', 't2bWC']:
+            textarXiv = rt.TLatex(0.60, 0.75, "arXiv:2103.01290")
+            textarXiv.SetNDC()
+            textarXiv.SetTextAlign(13)
+            textarXiv.SetTextFont(42)
+            textarXiv.SetTextSize(0.028)
+            if self.model.extraText :
+                textarXiv.Draw()
+            self.c.textarXiv = textarXiv
+
 
     def Save(self,label):
         # save the output

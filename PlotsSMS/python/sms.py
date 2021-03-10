@@ -29,8 +29,7 @@ class sms():
         self.Xmin = 250.
         self.Xmax = 850.
         self.Ymin = 180.
-        self.Ymax = 850.
-        #self.Ymax = 1100.
+        self.Ymax = 1100.
         self.Zmin = 0.04
         self.Zmax = 2.
         # produce sparticle
@@ -54,8 +53,7 @@ class sms():
         self.Xmin = 150.
         self.Xmax = 850.
         self.Ymin = 80.
-        self.Ymax = 850.
-        #self.Ymax = 1100.
+        self.Ymax = 1100.
         self.Zmin = 0.04
         self.Zmax = 30.
         # produce sparticle
@@ -79,8 +77,7 @@ class sms():
         self.Xmin = 250.
         self.Xmax = 850.
         self.Ymin = 180.
-        self.Ymax = 850.
-        #self.Ymax = 1100.
+        self.Ymax = 1100.
         self.Zmin = 0.04
         self.Zmax = 2.
         # produce sparticle
