@@ -136,11 +136,11 @@ class smsPlotABS(object):
         self.c.textNLONLL = textNLONLL
         # ArXiv
         if self.model.modelname in ['T2fbd', 'T2cc', 'T2bWC', 't2fbd', 't2cc', 't2bWC']:
-            textarXiv = rt.TLatex(0.60, 0.75, "arXiv:2103.01290")
+            textarXiv = rt.TLatex(0.58, 0.76, "arXiv:2103.01290")
             textarXiv.SetNDC()
             textarXiv.SetTextAlign(13)
             textarXiv.SetTextFont(42)
-            textarXiv.SetTextSize(0.028)
+            textarXiv.SetTextSize(0.032)
             if self.model.extraText :
                 textarXiv.Draw()
             self.c.textarXiv = textarXiv
@@ -149,6 +149,7 @@ class smsPlotABS(object):
     def Save(self,label):
         # save the output
         self.c.SaveAs("%s.pdf" %label)
+        self.c.SaveAs("%s.png" %label)
         
     def DrawLegend(self):
         xRange = self.model.Xmax-self.model.Xmin

@@ -376,13 +376,13 @@ class Uncertainty:
         #if self.value > 2:
         #    raise ValueError('Invalid unc value %f for %s!'%(self.value, self.name))
 
-def sumUncLogNorm(unc_list_up, unc_list_dn, bin = "", sample = "", type_ = {}):
+def sumUncLogNorm(unc_list_up, unc_list_dn, bin = "", type_ = {}):
 # syst_histo[systematic][bintype][region][direction]
     log_syst_up_sum = 0.
     log_syst_down_sum = 0.
     log_syst_up_total = 0.
     log_syst_down_total = 0.
-    debug = False
+    debug = True
     for type in type_:
         p_up    = unc_list_up[type]
         p_down  = unc_list_dn[type]
@@ -401,17 +401,12 @@ def sumUncLogNorm(unc_list_up, unc_list_dn, bin = "", sample = "", type_ = {}):
         # Sum (the square of the log of) all the ratios that are greater than 1
         # Sum (the square of the log of) all the ratios that are less than 1
         # Then at the end, take the exponential of the square root of each sum to get the total systematic ratio
-        if log_syst_up > 1 or log_syst_down < 1:
-            log_syst_up_sum     += np.log(log_syst_up)**2
-            log_syst_down_sum   += np.log(log_syst_down)**2
-        else:
-            log_syst_up_sum     += np.log(log_syst_down)**2
-            log_syst_down_sum   += np.log(log_syst_up)**2
+        log_syst_up_sum     += np.log(log_syst_up)**2
+        log_syst_down_sum   += np.log(log_syst_down)**2
         log_syst_up_total   = np.exp( np.sqrt(log_syst_up_sum))
         log_syst_down_total = np.exp(-np.sqrt(log_syst_down_sum)) # Minus sign is needed because this is the *down* ratio
-        if debug and (math.isnan(log_syst_down_total) or math.isnan(log_syst_up_total)):
-            print bin
-            print sample
+        if debug:
+            print type
             print "log_syst_up={0}, log_syst_down={1}".format(log_syst_up, log_syst_down)
             print "log_syst_up_total={0}, log_syst_down_total={1}".format(log_syst_up_total, log_syst_down_total)
     return [log_syst_down_total, log_syst_up_total]
@@ -907,7 +902,8 @@ def writeSR(signal):
                                     unc_list_up[entry] = unc.value
                                     unc_list_dn[entry] = unc.value2
                                     
-                    unc_up, unc_dn = sumUncLogNorm(unc_list_up, unc_list_dn, bin, "", unc_list_up.keys())
+                    print("{0} {1} {2} --> Up: {3}, Down: {4}".format(proc, uncType, bin, unc_list_up, unc_list_dn))
+                    unc_up, unc_dn = sumUncLogNorm(unc_list_up, unc_list_dn, bin, unc_list_up.keys())
                     procname_in_dc = proc if proc in bkgprocesses else 'signal'
                     if uncLabel == '': continue
                     if unc_dn > -100.:

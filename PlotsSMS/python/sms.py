@@ -116,7 +116,7 @@ class sms():
         # turn off diagonal lines
         self.diagOn = True
         self.extraText = True
-        self.sigma2band = True
+        self.sigma2band = False
         self.extratext1 = ""
         self.extratext2 = ""
 

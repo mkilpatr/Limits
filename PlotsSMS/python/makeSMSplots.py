@@ -26,13 +26,13 @@ if __name__ == '__main__':
         OBSERVED =  {'T2tt': fileIN.OBSERVED_T2tt,  'T2bW': fileIN.OBSERVED_T2bW,  'T2tb': fileIN.OBSERVED_T2tb,  'T2bWC': fileIN.OBSERVED_T2bWC,  'T2fbd': fileIN.OBSERVED_T2fbd,  'T2cc': fileIN.OBSERVED_T2cc}
         EXPECTED =  {'T2tt': fileIN.EXPECTED_T2tt,  'T2bW': fileIN.EXPECTED_T2bW,  'T2tb': fileIN.EXPECTED_T2tb,  'T2bWC': fileIN.EXPECTED_T2bWC,  'T2fbd': fileIN.EXPECTED_T2fbd,  'T2cc': fileIN.EXPECTED_T2cc}
 
-    # classic temperature histogra
-    if not allPlots:
-        xsecPlot = smsPlotXSEC(modelname, fileIN.HISTOGRAM, fileIN.OBSERVED, fileIN.EXPECTED, fileIN.ENERGY, fileIN.LUMI, fileIN.PRELIMINARY, "")
+        xsecPlot = smsPlotXSEC_all(modelname, HISTOGRAM, OBSERVED, EXPECTED, fileIN.ENERGY, fileIN.LUMI, fileIN.PRELIMINARY, "", signal)
         xsecPlot.Draw()
         xsecPlot.Save("%sXSEC" %outputname)
+
+    # classic temperature histogra
     else:
-        xsecPlot = smsPlotXSEC_all(modelname, HISTOGRAM, OBSERVED, EXPECTED, fileIN.ENERGY, fileIN.LUMI, fileIN.PRELIMINARY, "", signal)
+        xsecPlot = smsPlotXSEC(modelname, fileIN.HISTOGRAM, fileIN.OBSERVED, fileIN.EXPECTED, fileIN.ENERGY, fileIN.LUMI, fileIN.PRELIMINARY, "")
         xsecPlot.Draw()
         xsecPlot.Save("%sXSEC" %outputname)
 

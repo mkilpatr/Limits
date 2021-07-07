@@ -2,6 +2,7 @@ import ROOT as rt
 from array import *
 from sms import *
 from smsPlotABS_all import *
+from ROOT import gROOT, TFile, TTree, TH1D, TH2D, TChain, TGraph2D
 
 # class producing the 2D plot with xsec colors
 class smsPlotXSEC_all(smsPlotABS_all):
@@ -71,5 +72,13 @@ class smsPlotXSEC_all(smsPlotABS_all):
         self.DrawDiagonal()
         self.DrawText()
         self.DrawLegend()
+        f = TFile("Limit_scan_all.root", "RECREATE")
+        for i in self.SIGNAL:
+            for obs in self.OBS[i]['nominal'] :
+                obs.SetName(obs.GetName() + "_" + i)
+                obs.Write()
+            for exp in self.EXP[i]['nominal'] :
+                exp.SetName(exp.GetName() + '_' + i)
+                exp.Write()
         #self.DrawPaletteLabel()
         

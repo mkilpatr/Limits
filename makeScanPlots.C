@@ -249,19 +249,19 @@ vector<TGraph*> DrawContours(TGraph2D &g2, int color, int style,
     if (smoothN != 0)
         Smooth(g, smoothN, 3, signal);
 
-    std::pair<int, int > edgetemp = std::make_pair(0., 0.);
-    if (RemoveEdgemap.find(signal.Data()) != RemoveEdgemap.end()){
-        cout << name << endl;
-        edgetemp = RemoveEdgemap.at(signal.Data());
-        removeEdge(g, signal, edgetemp.first, edgetemp.second);
-    }
-
     //std::pair<int, int > edgetemp = std::make_pair(0., 0.);
-    //if (edgemap.find(signal.Data()) != edgemap.end() && (name == "gobs" || (name == "gexp" && signal != "T2tb"))){
+    //if (RemoveEdgemap.find(signal.Data()) != RemoveEdgemap.end()){
     //    cout << name << endl;
-    //    edgetemp = edgemap.at(signal.Data());
-    //    makeEdge(g, signal, edgetemp.first, edgetemp.second);
+    //    edgetemp = RemoveEdgemap.at(signal.Data());
+    //    removeEdge(g, signal, edgetemp.first, edgetemp.second);
     //}
+
+    std::pair<int, int > edgetemp = std::make_pair(0., 0.);
+    if (edgemap.find(signal.Data()) != edgemap.end() && (name == "gobs" || (name == "gexp" && signal != "T2tb"))){
+        cout << name << endl;
+        edgetemp = edgemap.at(signal.Data());
+        makeEdge(g, signal, edgetemp.first, edgetemp.second);
+    }
 
     out.push_back(g);
     g->SetLineColor(color);
